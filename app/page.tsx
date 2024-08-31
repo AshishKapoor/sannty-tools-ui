@@ -11,6 +11,7 @@ import {
   ListChecks,
   Rewind,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 function LandingPage() {
@@ -76,8 +77,38 @@ function LandingPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <style jsx>{`
+        @keyframes slideIn {
+          0% {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        @keyframes colorChange {
+          0% {
+            color: #3b82f6;
+          }
+          50% {
+            color: #10b981;
+          }
+          100% {
+            color: #3b82f6;
+          }
+        }
+        .animated-heading {
+          animation: slideIn 1s ease-out, colorChange 4s infinite;
+        }
+      `}</style>
       <header className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4 text-green-500">Sannty.in</h1>
+        <a href="https://sannty.in">
+          <h1 className="text-5xl font-extrabold mb-4 animated-heading">
+            Sannty.in
+          </h1>
+        </a>
         <p className="text-xl text-muted-foreground">
           Empower your productivity with our suite of tools
         </p>
