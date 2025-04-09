@@ -20,7 +20,8 @@ import { EditIcon, TrashIcon } from "lucide-react";
 
 interface Task {
   id: string;
-  content: string;
+  title: string;
+  description: string;
 }
 
 interface Column {
@@ -39,8 +40,8 @@ const initialColumns = [
 
 export default function Component() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
-  const [newTask, setNewTask] = useState("");
-  const [editingTask, setEditingTask] = useState<{ columnId: string; taskId: string; content: string } | null>(null);
+  const [newTask, setNewTask] = useState({ title: "", description: "" });
+  const [editingTask, setEditingTask] = useState<{ columnId: string; taskId: string; title: string; description: string } | null>(null);
 
   useEffect(() => {
     const storedColumns = window.localStorage.getItem("kanbanColumns");
@@ -54,24 +55,25 @@ export default function Component() {
   }, [columns]);
 
   const addTask = () => {
-    if (newTask.trim() !== "") {
+    if (newTask.title.trim() !== "") {
       const updatedColumns = [...columns];
       updatedColumns[0].tasks.push({
         id: Date.now().toString(),
-        content: newTask.trim(),
+        title: newTask.title.trim(),
+        description: newTask.description.trim(),
       });
       setColumns(updatedColumns);
-      setNewTask("");
+      setNewTask({ title: "", description: "" });
     }
   };
 
-  const editTask = (columnId: string, taskId: string, newContent: string) => {
+  const editTask = (columnId: string, taskId: string, title: string, description: string) => {
     const updatedColumns = columns.map((column) => {
       if (column.id === columnId) {
         return {
           ...column,
           tasks: column.tasks.map((task) =>
-            task.id === taskId ? { ...task, content: newContent } : task
+            task.id === taskId ? { ...task, title, description } : task
           ),
         };
       }
@@ -122,13 +124,13 @@ export default function Component() {
     }
   };
 
-  const startEditingTask = (columnId: string, taskId: string, content: string) => {
-    setEditingTask({ columnId, taskId, content });
+  const startEditingTask = (columnId: string, taskId: string, title: string, description: string) => {
+    setEditingTask({ columnId, taskId, title, description });
   };
 
   const handleEditSave = () => {
     if (editingTask) {
-      editTask(editingTask.columnId, editingTask.taskId, editingTask.content);
+      editTask(editingTask.columnId, editingTask.taskId, editingTask.title, editingTask.description);
       setEditingTask(null);
     }
   };
@@ -136,16 +138,21 @@ export default function Component() {
   return (
     <div className="p-4 mt-8">
       <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
-      <div className="flex mb-4">
+      <div className="flex flex-row gap-2 mb-4">
         <Input
           type="text"
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          onKeyPress={handleNewTaskKeyPress}
-          placeholder="Add a new task"
-          className="mr-2"
+          value={newTask.title}
+          onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+          placeholder="Task Title"
+          className="mr-2 w-[300px]"
         />
-        <Button onClick={addTask}>Add Task</Button>
+        <textarea
+          value={newTask.description}
+          onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+          placeholder="Task Description"
+          className="resize-none h-20 p-2 rounded-md border w-[400px]"
+        />
+        <Button onClick={addTask} className="w-fit">Add Task</Button>
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-4">
@@ -174,13 +181,16 @@ export default function Component() {
                             {...provided.dragHandleProps}
                             className="mb-2"
                           >
-                            <CardContent className="p-2 flex justify-between items-center">
-                              <span>{task.content}</span>
-                              <div className="flex gap-2">
+                            <CardContent className="p-2">
+                              <div className="font-medium">{task.title}</div>
+                              {task.description && (
+                                <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                              )}
+                              <div className="flex gap-2 mt-2 justify-end">
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => startEditingTask(column.id, task.id, task.content)}
+                                  onClick={() => startEditingTask(column.id, task.id, task.title, task.description)}
                                 >
                                   <EditIcon className="h-4 w-4" />
                                 </Button>
@@ -210,11 +220,17 @@ export default function Component() {
           <DialogHeader>
             <DialogTitle>Edit Task</DialogTitle>
           </DialogHeader>
-          <div className="p-4">
+          <div className="p-4 space-y-4">
             <Input
-              value={editingTask?.content || ''}
-              onChange={(e) => setEditingTask(prev => prev ? { ...prev, content: e.target.value } : null)}
-              className="mb-4"
+              value={editingTask?.title || ''}
+              onChange={(e) => setEditingTask(prev => prev ? { ...prev, title: e.target.value } : null)}
+              placeholder="Task Title"
+            />
+            <textarea
+              value={editingTask?.description || ''}
+              onChange={(e) => setEditingTask(prev => prev ? { ...prev, description: e.target.value } : null)}
+              placeholder="Task Description"
+              className="w-full resize-none h-20 p-2 rounded-md border"
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setEditingTask(null)}>Cancel</Button>
