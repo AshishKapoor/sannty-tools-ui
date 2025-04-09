@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditIcon, TrashIcon } from "lucide-react";
+import { EditIcon, TrashIcon, PlusIcon } from "lucide-react";
 
 interface Task {
   id: string;
@@ -42,6 +42,7 @@ export default function Component() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [newTask, setNewTask] = useState({ title: "", description: "" });
   const [editingTask, setEditingTask] = useState<{ columnId: string; taskId: string; title: string; description: string } | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     const storedColumns = window.localStorage.getItem("kanbanColumns");
@@ -137,23 +138,46 @@ export default function Component() {
 
   return (
     <div className="p-4 mt-8">
-      <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
-      <div className="flex flex-row gap-2 mb-4">
-        <Input
-          type="text"
-          value={newTask.title}
-          onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-          placeholder="Task Title"
-          className="mr-2 w-[300px]"
-        />
-        <textarea
-          value={newTask.description}
-          onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-          placeholder="Task Description"
-          className="resize-none h-20 p-2 rounded-md border w-[400px]"
-        />
-        <Button onClick={addTask} className="w-fit">Add Task</Button>
+      <div className="flex items-center gap-2 mb-4">
+        <h1 className="text-2xl font-bold">Kanban Board</h1>
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={() => setIsAddModalOpen(true)}
+        >
+          <PlusIcon className="h-4 w-4" />
+        </Button>
       </div>
+
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 space-y-4">
+            <Input
+              type="text"
+              value={newTask.title}
+              onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Task Title"
+            />
+            <textarea
+              value={newTask.description}
+              onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Task Description"
+              className="w-full resize-none h-20 p-2 rounded-md border"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                addTask();
+                setIsAddModalOpen(false);
+              }}>Add Task</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-4">
           {columns.map((column) => (
