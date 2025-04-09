@@ -41,7 +41,12 @@ const initialColumns = [
 export default function Component() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [newTask, setNewTask] = useState({ title: "", description: "" });
-  const [editingTask, setEditingTask] = useState<{ columnId: string; taskId: string; title: string; description: string } | null>(null);
+  const [editingTask, setEditingTask] = useState<{
+    columnId: string;
+    taskId: string;
+    title: string;
+    description: string;
+  } | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
@@ -68,7 +73,12 @@ export default function Component() {
     }
   };
 
-  const editTask = (columnId: string, taskId: string, title: string, description: string) => {
+  const editTask = (
+    columnId: string,
+    taskId: string,
+    title: string,
+    description: string
+  ) => {
     const updatedColumns = columns.map((column) => {
       if (column.id === columnId) {
         return {
@@ -99,13 +109,21 @@ export default function Component() {
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
-    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
+    if (
+      !destination ||
+      (source.droppableId === destination.droppableId &&
+        source.index === destination.index)
+    ) {
       return;
     }
 
     const newColumns = [...columns];
-    const sourceColIndex = newColumns.findIndex((col) => col.id === source.droppableId);
-    const destColIndex = newColumns.findIndex((col) => col.id === destination.droppableId);
+    const sourceColIndex = newColumns.findIndex(
+      (col) => col.id === source.droppableId
+    );
+    const destColIndex = newColumns.findIndex(
+      (col) => col.id === destination.droppableId
+    );
 
     const sourceCol = { ...newColumns[sourceColIndex] };
     const destCol = { ...newColumns[destColIndex] };
@@ -120,19 +138,29 @@ export default function Component() {
   };
 
   const handleNewTaskKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newTask.title.trim() !== '') {
+    if (e.key === "Enter" && newTask.title.trim() !== "") {
       addTask();
       setIsAddModalOpen(false);
     }
   };
 
-  const startEditingTask = (columnId: string, taskId: string, title: string, description: string) => {
+  const startEditingTask = (
+    columnId: string,
+    taskId: string,
+    title: string,
+    description: string
+  ) => {
     setEditingTask({ columnId, taskId, title, description });
   };
 
   const handleEditSave = () => {
     if (editingTask) {
-      editTask(editingTask.columnId, editingTask.taskId, editingTask.title, editingTask.description);
+      editTask(
+        editingTask.columnId,
+        editingTask.taskId,
+        editingTask.title,
+        editingTask.description
+      );
       setEditingTask(null);
     }
   };
@@ -160,22 +188,35 @@ export default function Component() {
             <Input
               type="text"
               value={newTask.title}
-              onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setNewTask((prev) => ({ ...prev, title: e.target.value }))
+              }
               placeholder="Task Title"
               onKeyPress={handleNewTaskKeyPress}
             />
             <textarea
               value={newTask.description}
-              onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setNewTask((prev) => ({ ...prev, description: e.target.value }))
+              }
               placeholder="Task Description"
               className="w-full resize-none h-20 p-2 rounded-md border"
             />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-              <Button onClick={() => {
-                addTask();
-                setIsAddModalOpen(false);
-              }}>Add Task</Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  addTask();
+                  setIsAddModalOpen(false);
+                }}
+              >
+                Add Task
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -194,8 +235,12 @@ export default function Component() {
                     size="sm"
                     variant="destructive"
                     onClick={() => {
-                      if (confirm(`Are you sure you want to delete all tasks in ${column.title}?`)) {
-                        const updatedColumns = columns.map(col => 
+                      if (
+                        confirm(
+                          `Are you sure you want to delete all tasks in ${column.title}?`
+                        )
+                      ) {
+                        const updatedColumns = columns.map((col) =>
                           col.id === column.id ? { ...col, tasks: [] } : col
                         );
                         setColumns(updatedColumns);
@@ -229,13 +274,22 @@ export default function Component() {
                             <CardContent className="p-2">
                               <div className="font-medium">{task.title}</div>
                               {task.description && (
-                                <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {task.description}
+                                </p>
                               )}
                               <div className="flex gap-2 mt-2 justify-end">
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => startEditingTask(column.id, task.id, task.title, task.description)}
+                                  onClick={() =>
+                                    startEditingTask(
+                                      column.id,
+                                      task.id,
+                                      task.title,
+                                      task.description
+                                    )
+                                  }
                                 >
                                   <EditIcon className="h-4 w-4" />
                                 </Button>
@@ -260,26 +314,41 @@ export default function Component() {
           ))}
         </div>
       </DragDropContext>
-      <Dialog open={editingTask !== null} onOpenChange={() => setEditingTask(null)}>
+      <Dialog
+        open={editingTask !== null}
+        onOpenChange={() => setEditingTask(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Task</DialogTitle>
           </DialogHeader>
           <div className="p-4 space-y-4">
             <Input
-              value={editingTask?.title || ''}
-              onChange={(e) => setEditingTask(prev => prev ? { ...prev, title: e.target.value } : null)}
+              value={editingTask?.title || ""}
+              onChange={(e) =>
+                setEditingTask((prev) =>
+                  prev ? { ...prev, title: e.target.value } : null
+                )
+              }
               placeholder="Task Title"
             />
             <textarea
-              value={editingTask?.description || ''}
-              onChange={(e) => setEditingTask(prev => prev ? { ...prev, description: e.target.value } : null)}
+              value={editingTask?.description || ""}
+              onChange={(e) =>
+                setEditingTask((prev) =>
+                  prev ? { ...prev, description: e.target.value } : null
+                )
+              }
               placeholder="Task Description"
               className="w-full resize-none h-20 p-2 rounded-md border"
             />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setEditingTask(null)}>Cancel</Button>
-              <Button onClick={handleEditSave}>Save</Button>
+              <Button variant="outline" onClick={() => setEditingTask(null)}>
+                Cancel
+              </Button>
+              <Button variant="default" onClick={handleEditSave}>
+                Save
+              </Button>
             </div>
           </div>
         </DialogContent>
