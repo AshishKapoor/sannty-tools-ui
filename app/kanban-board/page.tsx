@@ -151,7 +151,9 @@ export default function Component() {
         <div className="flex gap-4">
           {columns.map((column) => (
             <div key={column.id} className="flex-1">
-              <h2 className="font-semibold mb-2">{column.title}</h2>
+              <h2 className="font-semibold mb-2">
+                {column.title} ({column.tasks.length})
+              </h2>
               <Droppable droppableId={column.id}>
                 {(provided) => (
                   <div
