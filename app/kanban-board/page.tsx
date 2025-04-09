@@ -56,6 +56,36 @@ export default function Component() {
     }
   };
 
+  const editTask = (columnId: string, taskId: string, newContent: string) => {
+    const updatedColumns = columns.map((column) => {
+      if (column.id === columnId) {
+        return {
+          ...column,
+          tasks: column.tasks.map((task) =>
+            task.id === taskId ? { ...task, content: newContent } : task
+          ),
+        };
+      }
+      return column;
+    });
+    setColumns(updatedColumns);
+    saveColumnsToStorage(updatedColumns);
+  };
+
+  const removeTask = (columnId: string, taskId: string) => {
+    const updatedColumns = columns.map((column) => {
+      if (column.id === columnId) {
+        return {
+          ...column,
+          tasks: column.tasks.filter((task) => task.id !== taskId),
+        };
+      }
+      return column;
+    });
+    setColumns(updatedColumns);
+    saveColumnsToStorage(updatedColumns);
+  };
+
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
@@ -118,8 +148,29 @@ export default function Component() {
                             {...provided.dragHandleProps}
                             className="mb-2"
                           >
-                            <CardContent className="p-2">
-                              {task.content}
+                            <CardContent className="p-2 flex justify-between items-center">
+                              <span>{task.content}</span>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const newContent = prompt("Edit task content:", task.content);
+                                    if (newContent !== null) {
+                                      editTask(column.id, task.id, newContent);
+                                    }
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => removeTask(column.id, task.id)}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
                             </CardContent>
                           </Card>
                         )}
