@@ -145,7 +145,7 @@ export default function Component() {
           size="icon"
           variant="outline"
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-emerald-500"
+          className="bg-emerald-500 hover:bg-emerald-400"
         >
           <PlusIcon className="h-4 w-4 text-white" />
         </Button>
