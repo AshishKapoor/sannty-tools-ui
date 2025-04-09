@@ -10,6 +10,13 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { EditIcon, TrashIcon } from "lucide-react";
 
 interface Task {
   id: string;
@@ -33,6 +40,7 @@ const initialColumns = [
 export default function Component() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [newTask, setNewTask] = useState("");
+  const [editingTask, setEditingTask] = useState<{ columnId: string; taskId: string; content: string } | null>(null);
 
   useEffect(() => {
     const storedColumns = window.localStorage.getItem("kanbanColumns");
@@ -108,6 +116,23 @@ export default function Component() {
     setColumns(newColumns);
   };
 
+  const handleNewTaskKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      addTask();
+    }
+  };
+
+  const startEditingTask = (columnId: string, taskId: string, content: string) => {
+    setEditingTask({ columnId, taskId, content });
+  };
+
+  const handleEditSave = () => {
+    if (editingTask) {
+      editTask(editingTask.columnId, editingTask.taskId, editingTask.content);
+      setEditingTask(null);
+    }
+  };
+
   return (
     <div className="p-4 mt-8">
       <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
@@ -116,6 +141,7 @@ export default function Component() {
           type="text"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
+          onKeyPress={handleNewTaskKeyPress}
           placeholder="Add a new task"
           className="mr-2"
         />
@@ -152,21 +178,16 @@ export default function Component() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => {
-                                    const newContent = prompt("Edit task content:", task.content);
-                                    if (newContent !== null) {
-                                      editTask(column.id, task.id, newContent);
-                                    }
-                                  }}
+                                  onClick={() => startEditingTask(column.id, task.id, task.content)}
                                 >
-                                  Edit
+                                  <EditIcon className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="destructive"
                                   onClick={() => removeTask(column.id, task.id)}
                                 >
-                                  Remove
+                                  <TrashIcon className="h-4 w-4" />
                                 </Button>
                               </div>
                             </CardContent>
@@ -182,6 +203,24 @@ export default function Component() {
           ))}
         </div>
       </DragDropContext>
+      <Dialog open={editingTask !== null} onOpenChange={() => setEditingTask(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <Input
+              value={editingTask?.content || ''}
+              onChange={(e) => setEditingTask(prev => prev ? { ...prev, content: e.target.value } : null)}
+              className="mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setEditingTask(null)}>Cancel</Button>
+              <Button onClick={handleEditSave}>Save</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
