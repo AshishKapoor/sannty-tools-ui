@@ -22,12 +22,25 @@ interface Column {
   tasks: Task[];
 }
 
+const initialColumns = [
+  { id: "backlog", title: "Backlog", tasks: [] },
+  { id: "inprogress", title: "In Progress", tasks: [] },
+  { id: "inreview", title: "In Review", tasks: [] },
+  { id: "blocked", title: "Blocked", tasks: [] },
+  { id: "done", title: "Done", tasks: [] },
+];
+
+const loadColumnsFromStorage = () => {
+  const storedColumns = localStorage.getItem("kanbanColumns");
+  return storedColumns ? JSON.parse(storedColumns) : initialColumns;
+};
+
+const saveColumnsToStorage = (columns: Column[]) => {
+  localStorage.setItem("kanbanColumns", JSON.stringify(columns));
+};
+
 export default function Component() {
-  const [columns, setColumns] = useState<Column[]>([
-    { id: "todo", title: "TODO", tasks: [] },
-    { id: "inprogress", title: "IN PROGRESS", tasks: [] },
-    { id: "done", title: "DONE", tasks: [] },
-  ]);
+  const [columns, setColumns] = useState<Column[]>(loadColumnsFromStorage());
   const [newTask, setNewTask] = useState("");
 
   const addTask = () => {
@@ -38,6 +51,7 @@ export default function Component() {
         content: newTask.trim(),
       });
       setColumns(updatedColumns);
+      saveColumnsToStorage(updatedColumns);
       setNewTask("");
     }
   };
@@ -45,45 +59,29 @@ export default function Component() {
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
-    // If there's no destination or the item is dropped in the same place, do nothing
-    if (
-      !destination ||
-      (source.droppableId === destination.droppableId &&
-        source.index === destination.index)
-    ) {
+    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
       return;
     }
 
-    // Create a copy of the columns
     const newColumns = [...columns];
+    const sourceColIndex = newColumns.findIndex((col) => col.id === source.droppableId);
+    const destColIndex = newColumns.findIndex((col) => col.id === destination.droppableId);
 
-    // Find the source and destination columns
-    const sourceColIndex = newColumns.findIndex(
-      (col) => col.id === source.droppableId
-    );
-    const destColIndex = newColumns.findIndex(
-      (col) => col.id === destination.droppableId
-    );
-
-    // Create copies of the source and destination task lists
     const sourceCol = { ...newColumns[sourceColIndex] };
     const destCol = { ...newColumns[destColIndex] };
 
-    // Remove the task from the source column
     const [movedTask] = sourceCol.tasks.splice(source.index, 1);
-
-    // Add the task to the destination column
     destCol.tasks.splice(destination.index, 0, movedTask);
 
-    // Update the columns in the state
     newColumns[sourceColIndex] = sourceCol;
     newColumns[destColIndex] = destCol;
 
     setColumns(newColumns);
+    saveColumnsToStorage(newColumns);
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto mt-20">
+    <div className="p-4 mt-8">
       <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
       <div className="flex mb-4">
         <Input
@@ -105,7 +103,7 @@ export default function Component() {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="bg-secondary p-2 rounded-md min-h-[200px]"
+                    className="bg-secondary p-2 rounded-md min-h-[200px] w-full"
                   >
                     {column.tasks.map((task, index) => (
                       <Draggable
