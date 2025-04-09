@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditIcon, TrashIcon, PlusIcon } from "lucide-react";
+import { EditIcon, TrashIcon, PlusIcon, CopyIcon } from "lucide-react";
 
 interface Task {
   id: string;
@@ -99,6 +99,19 @@ export default function Component() {
         return {
           ...column,
           tasks: column.tasks.filter((task) => task.id !== taskId),
+        };
+      }
+      return column;
+    });
+    setColumns(updatedColumns);
+  };
+
+  const cloneTask = (columnId: string, task: Task) => {
+    const updatedColumns = columns.map((column) => {
+      if (column.id === columnId) {
+        return {
+          ...column,
+          tasks: [...column.tasks, { ...task, id: Date.now().toString() }],
         };
       }
       return column;
@@ -279,6 +292,13 @@ export default function Component() {
                                 </p>
                               )}
                               <div className="flex gap-2 mt-2 justify-end">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => cloneTask(column.id, task)}
+                                >
+                                  <CopyIcon className="h-4 w-4" />
+                                </Button>
                                 <Button
                                   size="sm"
                                   variant="outline"
