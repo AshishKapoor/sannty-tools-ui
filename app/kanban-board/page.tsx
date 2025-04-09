@@ -182,9 +182,27 @@ export default function Component() {
         <div className="flex gap-4">
           {columns.map((column) => (
             <div key={column.id} className="flex-1">
-              <h2 className="font-semibold mb-2">
-                {column.title} ({column.tasks.length})
-              </h2>
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="font-semibold">
+                  {column.title} ({column.tasks.length})
+                </h2>
+                {column.tasks.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to delete all tasks in ${column.title}?`)) {
+                        const updatedColumns = columns.map(col => 
+                          col.id === column.id ? { ...col, tasks: [] } : col
+                        );
+                        setColumns(updatedColumns);
+                      }
+                    }}
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
               <Droppable droppableId={column.id}>
                 {(provided) => (
                   <div
