@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DragDropContext,
   Droppable,
@@ -30,18 +30,20 @@ const initialColumns = [
   { id: "done", title: "Done", tasks: [] },
 ];
 
-const loadColumnsFromStorage = () => {
-  const storedColumns = localStorage.getItem("kanbanColumns");
-  return storedColumns ? JSON.parse(storedColumns) : initialColumns;
-};
-
-const saveColumnsToStorage = (columns: Column[]) => {
-  localStorage.setItem("kanbanColumns", JSON.stringify(columns));
-};
-
 export default function Component() {
-  const [columns, setColumns] = useState<Column[]>(loadColumnsFromStorage());
+  const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [newTask, setNewTask] = useState("");
+
+  useEffect(() => {
+    const storedColumns = window.localStorage.getItem("kanbanColumns");
+    if (storedColumns) {
+      setColumns(JSON.parse(storedColumns));
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("kanbanColumns", JSON.stringify(columns));
+  }, [columns]);
 
   const addTask = () => {
     if (newTask.trim() !== "") {
@@ -51,7 +53,6 @@ export default function Component() {
         content: newTask.trim(),
       });
       setColumns(updatedColumns);
-      saveColumnsToStorage(updatedColumns);
       setNewTask("");
     }
   };
@@ -69,7 +70,6 @@ export default function Component() {
       return column;
     });
     setColumns(updatedColumns);
-    saveColumnsToStorage(updatedColumns);
   };
 
   const removeTask = (columnId: string, taskId: string) => {
@@ -83,7 +83,6 @@ export default function Component() {
       return column;
     });
     setColumns(updatedColumns);
-    saveColumnsToStorage(updatedColumns);
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -107,7 +106,6 @@ export default function Component() {
     newColumns[destColIndex] = destCol;
 
     setColumns(newColumns);
-    saveColumnsToStorage(newColumns);
   };
 
   return (
