@@ -120,8 +120,9 @@ export default function Component() {
   };
 
   const handleNewTaskKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && newTask.title.trim() !== '') {
       addTask();
+      setIsAddModalOpen(false);
     }
   };
 
@@ -160,6 +161,7 @@ export default function Component() {
               value={newTask.title}
               onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
               placeholder="Task Title"
+              onKeyPress={handleNewTaskKeyPress}
             />
             <textarea
               value={newTask.description}
