@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Mission Control
 
 <img width="1912" alt="Screenshot 2025-04-10 at 11 05 34 AM" src="https://github.com/user-attachments/assets/d38f64ff-1d56-4100-89d0-7347a89c9766" />
 
