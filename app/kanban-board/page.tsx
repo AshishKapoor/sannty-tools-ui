@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "@hello-pangea/dnd";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditIcon, TrashIcon, PlusIcon, CopyIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import { CopyIcon, EditIcon, PlusIcon, TrashIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 interface Task {
   id: string;
@@ -28,19 +28,46 @@ interface Column {
   id: string;
   title: string;
   tasks: Task[];
+  description: string;
 }
 
 const initialColumns = [
-  { id: "backlog", title: "Backlog", tasks: [] },
-  { id: "inprogress", title: "In Progress", tasks: [] },
-  { id: "inreview", title: "In Review", tasks: [] },
-  { id: "blocked", title: "Blocked", tasks: [] },
-  { id: "done", title: "Done", tasks: [] },
+  {
+    id: "backlog",
+    title: "Backlog",
+    description: 'This item hasn"t been started',
+    tasks: [],
+  },
+  {
+    id: "inprogress",
+    title: "In Progress",
+    description: "This is actively being worked on",
+    tasks: [],
+  },
+  {
+    id: "inreview",
+    title: "In Review",
+    description: "This is ready to be picked up",
+    tasks: [],
+  },
+  {
+    id: "blocked",
+    title: "Blocked",
+    description: "Blocked with some dependencies",
+    tasks: [],
+  },
+  {
+    id: "done",
+    title: "Done",
+    description: "This item has been completed",
+    tasks: [],
+  },
 ];
 
 export default function Component() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [newTask, setNewTask] = useState({ title: "", description: "" });
+
   const [editingTask, setEditingTask] = useState<{
     columnId: string;
     taskId: string;
@@ -48,6 +75,7 @@ export default function Component() {
     description: string;
   } | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const storedColumns = window.localStorage.getItem("kanbanColumns");
@@ -178,8 +206,24 @@ export default function Component() {
     }
   };
 
+  const filteredColumns = columns.map((column) => ({
+    ...column,
+    tasks: column.tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+  }));
+
   return (
     <div className="p-4 mt-8">
+      <Input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Filter by keyword or field"
+        className="mb-4"
+      />
       <div className="flex items-center gap-2 mb-4">
         <h1 className="text-2xl font-bold">Kanban Board</h1>
         <Button
@@ -237,11 +281,14 @@ export default function Component() {
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-4">
-          {columns.map((column) => (
+          {filteredColumns.map((column) => (
             <div key={column.id} className="flex-1">
               <div className="flex justify-between items-center mb-2">
-                <h2 className="font-semibold">
+                <h2 className="font-semibold flex flex-col">
                   {column.title} ({column.tasks.length})
+                  <span className="text-sm text-gray-500">
+                    {column.description}
+                  </span>
                 </h2>
                 {column.tasks.length > 0 && (
                   <Button
