@@ -15,7 +15,7 @@ import {
   Droppable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { CopyIcon, EditIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, EditIcon, Hash, PlusIcon, TrashIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 interface Task {
@@ -64,7 +64,7 @@ const initialColumns = [
   },
 ];
 
-export default function Component() {
+export default function KanbanBoard() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [newTask, setNewTask] = useState({ title: "", description: "" });
 
@@ -216,24 +216,23 @@ export default function Component() {
   }));
 
   return (
-    <div className="p-4 mt-8">
-      <Input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Filter by keyword or field"
-        className="mb-4"
-      />
-      <div className="flex items-center gap-2 mb-4">
-        <h1 className="text-2xl font-bold">Kanban Board</h1>
+    <div className="p-2 mt-2" style={{ minWidth: 1400, maxWidth: "auto" }}>
+      <div className="flex items-start justify-baseline gap-2 mb-2">
         <Button
-          size="icon"
           variant="outline"
           onClick={() => setIsAddModalOpen(true)}
           className="bg-emerald-500 hover:bg-emerald-400"
         >
+          <span className="text-white mr-2">Add Task</span>
           <PlusIcon className="h-4 w-4 text-white" />
         </Button>
+        <Input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Filter by keyword or field"
+          className="mb-2 w-[320px]"
+        />
       </div>
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
@@ -339,6 +338,10 @@ export default function Component() {
                                 </p>
                               )}
                               <div className="flex gap-2 mt-2 justify-end">
+                                <span className="flex items-center gap-1 text-sm text-gray-500">
+                                  <Hash className="h-4 w-4" />
+                                  {task.id}
+                                </span>
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -362,7 +365,7 @@ export default function Component() {
                                 </Button>
                                 <Button
                                   size="sm"
-                                  variant="destructive"
+                                  variant="outline"
                                   onClick={() => removeTask(column.id, task.id)}
                                 >
                                   <TrashIcon className="h-4 w-4" />
