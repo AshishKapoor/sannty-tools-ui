@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mission Control",
+  title: "Mission Control | Sannty Tools",
   description: "tools.sannty.in",
 };
 
