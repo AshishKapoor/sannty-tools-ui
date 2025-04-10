@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sannty.in",
-  description: "Sannty.in",
+  title: "Mission Control",
+  description: "tools.sannty.in",
 };
 
 export default function RootLayout({
